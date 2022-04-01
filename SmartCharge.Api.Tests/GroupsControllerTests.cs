@@ -6,8 +6,6 @@ using SmartCharge.Api.Controllers;
 using SmartCharge.Application.Features;
 using SmartCharge.Application.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -26,7 +24,6 @@ namespace SmartCharge.Api.Tests
             _groupDto = new GroupDto();
             _dto = new GroupForManipulationDto();
 
-            _groupService.Setup(i => i.AddGroup(_dto)).Returns(Task.FromResult(_groupDto));
             _groupsController = new GroupsController(_groupService.Object);
         }
 
@@ -37,23 +34,41 @@ namespace SmartCharge.Api.Tests
         public async Task CreateGroup_ShouldCallAddMethodWhenValid(int expectedMethodCalls, bool isModelValid, Type expectedActionResultType)
         {
             //Arrange
+            _groupService.Setup(i => i.AddGroup(_dto)).ReturnsAsync(_groupDto);
+
             if (!isModelValid)
                 _groupsController.ModelState.AddModelError("key", "ErrorMessage");
 
-
             //Action
             ActionResult<GroupDto> actionResult = await _groupsController.CreateGroup(_dto);
-           
+
 
             //Assert
-
             actionResult.Result.ShouldBeOfType(expectedActionResultType);
             _groupService.Verify(i => i.AddGroup(_dto), Times.Exactly(expectedMethodCalls));
         }
 
         [Theory]
-        public async Task DeleteGroup_ShouldCallDeleteMethodWhenValid()
+        [InlineData(true, typeof(OkObjectResult))]
+        [InlineData(false, typeof(NotFoundResult))]
+        public async Task GetGroup_ShouldCallGetGroupMethod(bool isExistedData, Type expectedActionResult)
         {
+            //Arrange
+            if (isExistedData)
+                _groupService.Setup(i => i.GetGroup(It.IsAny<int>())).ReturnsAsync(_groupDto);
+            else
+                _groupService.Setup(i => i.GetGroup(It.IsAny<int>())).Throws(new ArgumentNullException());
+
+
+            //Act
+            //var result = await Assert.ThrowsAsync<ArgumentNullException>(() => _groupsController.GetGroup(2));
+            //Assert.Equal(401, (int)result.);
+            var actionResult = await _groupsController.GetGroup(2);
+
+            //Assert
+            actionResult.Result.ShouldBeOfType(expectedActionResult);
+            _groupService.Verify(i => i.GetGroup(2), Times.Exactly(1));
+
 
         }
 

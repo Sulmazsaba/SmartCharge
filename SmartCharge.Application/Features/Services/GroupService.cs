@@ -15,7 +15,7 @@ namespace SmartCharge.Application.Features.Services
     public class GroupService : IGroupService
     {
         private readonly IMapper _mapper;
-        private readonly IChargeStationRepository chargeStationRepository;
+        private readonly IChargeStationRepository _chargeStationRepository;
         private readonly IGroupRepository _groupRepository;
 
         public GroupService(IGroupRepository groupRepository, IMapper mapper,
@@ -23,7 +23,7 @@ namespace SmartCharge.Application.Features.Services
         {
             _groupRepository = groupRepository;
             _mapper = mapper;
-            this.chargeStationRepository = chargeStationRepository;
+           _chargeStationRepository = chargeStationRepository;
         }
 
         public async Task<GroupDto> AddGroup(GroupForManipulationDto groupForManipulationDto)
@@ -76,7 +76,7 @@ namespace SmartCharge.Application.Features.Services
 
         private async Task ValidateCapacityInAmps(Group group)
         {
-            var allChargeStations = chargeStationRepository.GetAllChargeStationsWithConnectors(group.Id);
+            var allChargeStations = _chargeStationRepository.GetAllChargeStationsWithConnectors(group.Id);
 
 
             var sum = allChargeStations.Sum(o => o.Connectors.Sum(x => x.MaxCurrentInAmps));

@@ -16,7 +16,7 @@ namespace SmartCharge.Api.Middlewares
         {
             try
             {
-                await next(context);
+               await next(context);
             }
             catch (Exception ex)
             {

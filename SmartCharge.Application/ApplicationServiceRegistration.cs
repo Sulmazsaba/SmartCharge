@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartCharge.Application.Features;
 using SmartCharge.Application.Features.Services;
 using SmartCharge.Application.Models;
-using SmartCharge.Application.Validations;
 using System;
 using System.Collections.Generic;
 using System.Linq;

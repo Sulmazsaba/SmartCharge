@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Options;
 using SmartCharge.Application.Exceptions;
 using SmartCharge.Application.Features;
 using SmartCharge.Application.Models;
@@ -21,6 +23,10 @@ namespace SmartCharge.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<GroupDto>> CreateGroup(GroupForManipulationDto dto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var groupToReturn = await _groupService.AddGroup(dto);
             return CreatedAtRoute("GetGroup", new { groupId = groupToReturn.Id }, groupToReturn);
         }
@@ -29,7 +35,6 @@ namespace SmartCharge.Api.Controllers
         [HttpGet("{groupId}", Name = "GetGroup")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(GroupDto), (int)HttpStatusCode.OK)]
-        [ProducesDefaultResponseType]
         public async Task<ActionResult<GroupDto>> GetGroup(int groupId)
         {
             var result = await _groupService.GetGroup(groupId);
@@ -56,6 +61,8 @@ namespace SmartCharge.Api.Controllers
             return NoContent();
         }
 
+
+        
 
     }
 }

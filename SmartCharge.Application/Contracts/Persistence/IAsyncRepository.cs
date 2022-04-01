@@ -1,4 +1,5 @@
 ﻿using SmartCharge.Domain.Common;
+using SmartCharge.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,5 +25,6 @@ namespace SmartCharge.Application.Contracts.Persistence
         Task<T> AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
+        Task<T> GetById(int id);
     }
 }

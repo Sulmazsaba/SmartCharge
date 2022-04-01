@@ -23,11 +23,6 @@ namespace SmartCharge.Infrastructure.Repositories
             return context.ChargeStations.Where(i => i.GroupId == groupId).Include(i => i.Connectors).Sum(i => i.Connectors.Sum(j => j.MaxCurrentInAmps));
         }
 
-        public ChargeStation GetById(int id)
-        {
-            return context.Find<ChargeStation>(id);
-        }
-
         public List<ChargeStation> GetAllChargeStationsWithConnectors(int groupId)
         {
             return context.ChargeStations.Where(i => i.GroupId == groupId).Include(i => i.Connectors).ToList();

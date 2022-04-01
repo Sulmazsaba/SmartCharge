@@ -10,7 +10,7 @@ namespace SmartCharge.Infrastructure.Tests
     public class ConnectorRepositoryTests
     {
 
-        [Fact]
-        public async Task 
+        //[Fact]
+        //public async Task 
     }
 }

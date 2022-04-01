@@ -85,7 +85,7 @@ namespace SmartCharge.Application.Features.Services
 
         private async Task ValidateMaxCurrentInAmpsInAddConnector(int chargeStatationId, ConnectorForManipulationDto connectorForManipulationDto)
         {
-            var chargeStation = chargeStationRepository.GetById(chargeStatationId);
+            var chargeStation =await chargeStationRepository.GetById(chargeStatationId);
 
             var group = await groupRepository.FindById(chargeStation.GroupId);
 
@@ -103,7 +103,7 @@ namespace SmartCharge.Application.Features.Services
 
         private async Task ValidateMaxCurrentInAmpsInUpdateConnector(int chargeStatationId, ConnectorForManipulationDto connectorForManipulationDto)
         {
-            var chargeStation = chargeStationRepository.GetById(chargeStatationId);
+            var chargeStation =await chargeStationRepository.GetById(chargeStatationId);
 
             var group = await groupRepository.FindById(chargeStation.GroupId);
 

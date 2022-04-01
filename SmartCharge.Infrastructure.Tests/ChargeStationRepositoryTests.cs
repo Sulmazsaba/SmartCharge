@@ -17,7 +17,7 @@ namespace SmartCharge.Infrastructure.Tests
         private readonly Group _group;
         public ChargeStationRepositoryTests()
         {
-             _group = new Group
+            _group = new Group
             {
                 Id = 1,
                 CapacityInAmps = 2,
@@ -78,27 +78,83 @@ namespace SmartCharge.Infrastructure.Tests
             maxCurrentInAmps.Should().Be(20);
         }
 
-        [Fact]
-        public async Task GetChargeStationById_ShouldReturnCorrectValue()
+        [Theory]
+        [InlineData(2, true)]
+        [InlineData(3, false)]
+        public async Task GetChargeStationById_ShouldReturnCorrectValue(int chargeStationId, bool expectedResult)
         {
-            var dbOptions = new DbContextOptionsBuilder<SmartChargeContext>().UseInMemoryDatabase("GetChargeStationByIdTest").Options;
+            //Arrange
+            var dbOptions = new DbContextOptionsBuilder<SmartChargeContext>().UseInMemoryDatabase($"GetChargeStationByIdTest_{chargeStationId}").Options;
 
             using var context = new SmartChargeContext(dbOptions);
 
             var chargeStationRepository = new ChargeStationRepository(context);
             var groupRepository = new GroupRepository(context);
+
+            //Action
             await groupRepository.AddAsync(_group);
+            var chargeStation = _group.ChargeStations.FirstOrDefault(i => i.Id == chargeStationId);
 
-            ChargeStation chargeStation = _group.ChargeStations.FirstOrDefault(i =>i.Id == 2);
+            var result = await chargeStationRepository.GetById(chargeStationId);
 
-            var result =await chargeStationRepository.GetById(2);
-            result.Id.Should().Be(chargeStation?.Id);
-            result.Name.Should().Be(chargeStation?.Name);
-            
-            chargeStation = _group.ChargeStations.FirstOrDefault(i => i.Id == 3);
-            result =await chargeStationRepository.GetById(3);
-            result.Should().Be(null);
+            // Assert
+            if (!expectedResult)
+                result.Should().Be(null);
+            else
+            {
+                result.Id.Should().Be(chargeStation?.Id);
+                result.Name.Should().Be(chargeStation?.Name);
+            }
+        }
 
+        [Fact]
+        public async Task GetAllChargeStationsWithConnectors_ShouldReturnCorrectList()
+        {
+            //Arrange
+            var dbOptions = new DbContextOptionsBuilder<SmartChargeContext>().UseInMemoryDatabase("GetAllChargeStationsWithConnectorsTest").Options;
+
+            using var context = new SmartChargeContext(dbOptions);
+
+            var chargeStationRepository = new ChargeStationRepository(context);
+            var groupRepository = new GroupRepository(context);
+
+            //Action
+            await groupRepository.AddAsync(_group);
+            var result = chargeStationRepository.GetAllChargeStationsWithConnectors(1);
+
+            //Assert
+            result.Should().Contain(i => i.GroupId == 1);
+            result.Should().Contain(i => i.Connectors.Count() == 2);
+            result.Should().Contain(i => i.Name == "Charge Station1");
+        }
+
+        [Theory]
+        [InlineData(1,1,true)]
+        [InlineData(1,3,false)]
+        [InlineData(2,1,false)]
+        public async Task GetByChargeStaionIdAndGroupId_ShouldReturnExpectedResult(int groupId,int chargeStationId,bool expectedResult)
+        {
+
+            //Arrange
+            Random rnd = new Random();
+            var dbOptions = new DbContextOptionsBuilder<SmartChargeContext>().UseInMemoryDatabase($"GetByChargeStaionIdAnGroupId_{rnd.Next()}").Options;
+            using var context = new SmartChargeContext(dbOptions);
+            var chargeStationRepository = new ChargeStationRepository(context);
+            var groupRepository = new GroupRepository(context);
+
+            //Action
+            await groupRepository.AddAsync(_group);
+            var result = chargeStationRepository.Find(groupId, chargeStationId);
+
+            //Assert
+            if (!expectedResult)
+            {
+                result.Should().BeNull();
+            }
+            else
+            {
+                result.Should().Be(_group.ChargeStations.Where(i=>i.GroupId==groupId && i.Id==chargeStationId).FirstOrDefault());
+            }
         }
     }
 }

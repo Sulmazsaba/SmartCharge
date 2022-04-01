@@ -101,7 +101,7 @@ namespace SmartCharge.Application.Tests
 
             connectorRepositoryMock.Setup(x => x.CountByChargeStationId(2)).Returns(6);
             chargeStationRepositoryMock.Setup(o => o.GetAllChargeStationsWithConnectors(It.IsAny<int>())).Returns(chargeStationList);
-            chargeStationRepositoryMock.Setup(s => s.GetById(4)).Returns(chargeStation);
+            chargeStationRepositoryMock.Setup(s => s.GetById(4)).Returns(Task.FromResult(chargeStation));
             groupRepositoryMock.Setup(o => o.FindById(4)).Returns(Task.FromResult(group));
             connectorRepositoryMock.Setup(x => x.GetByKeys(4, 3)).Returns(connector);
 

@@ -19,7 +19,7 @@ namespace SmartCharge.Infrastructure.Repositories
 
         public  int CountByChargeStationId(int chargeStationId)
         {
-            return  smartChargeContext.Connectors.Count();
+            return  smartChargeContext.Connectors.Count(i=>i.ChargeStationId==chargeStationId);
         }
 
         public Connector GetByKeys(int chargeStationId, int connectorId)

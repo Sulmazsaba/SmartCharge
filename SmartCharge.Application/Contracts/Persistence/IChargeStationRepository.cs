@@ -11,7 +11,7 @@ namespace SmartCharge.Application.Contracts.Persistence
     {
         int GetSumMaxCurrentInAmpsConnectors(int groupId);
 
-        ChargeStation GetById(int id);
+        //ChargeStation GetById(int id);
 
         List<ChargeStation> GetAllChargeStationsWithConnectors(int groupId);
 

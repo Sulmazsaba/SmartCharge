@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SmartCharge.Application.Contracts.Persistence;
 using SmartCharge.Domain.Common;
+using SmartCharge.Domain.Entities;
 using SmartCharge.Infrastructure.Persistence;
 using System;
 using System.Collections.Generic;
@@ -78,5 +79,7 @@ namespace SmartCharge.Infrastructure.Repositories
             _dbContext.Set<T>().Remove(entity);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<T> GetById(int id) =>  await _dbContext.FindAsync<T>(id);
     }
 }

@@ -20,13 +20,14 @@ namespace SmartCharge.Application
 {
     public class GroupServiceTests
     {
-        private  GroupForManipulationDto _groupForManipulationDto;
         private readonly Mock<IGroupRepository> _groupRepositoryMock;
         private readonly Mock<IChargeStationRepository> _chargeStationRepositoryMock;
         private GroupService _groupService;
         private IMapper _mapper;
-        Group group;
-        List<ChargeStation> chargeStationList;
+
+        private  GroupForManipulationDto _groupForManipulationDto;
+        private  Group _group;
+        private List<ChargeStation> _chargeStationList;
 
         public GroupServiceTests()
         {
@@ -36,13 +37,13 @@ namespace SmartCharge.Application
                 Name = "Group 4"
             };
 
-            group = new Group
+            _group = new Group
             {
                 CapacityInAmps = 2,
                 Name = "test",
             };
 
-            chargeStationList = new List<ChargeStation>()
+            _chargeStationList = new List<ChargeStation>()
             {
                 new ChargeStation()
                 {
@@ -79,27 +80,29 @@ namespace SmartCharge.Application
                 }
             };
 
-
             _groupRepositoryMock = new Mock<IGroupRepository>();
             _chargeStationRepositoryMock = new Mock<IChargeStationRepository>();
 
             if (_mapper == null)
             {
-                var mappingConfig = new MapperConfiguration(mc =>
-                {
-                    mc.AddProfile(new GroupsProfile());
-                });
-                IMapper mapper = mappingConfig.CreateMapper();
-                _mapper = mapper;
+                SetMapper();
             }
 
-            _groupRepositoryMock.Setup(o => o.AddAsync(It.IsAny<Group>()));
-            _groupRepositoryMock.Setup(o => o.FindById(3)).Returns(Task.FromResult(group));
-            _groupRepositoryMock.Setup(o => o.UpdateAsync(It.IsAny<Group>()));
-            _chargeStationRepositoryMock.Setup(o => o.GetAllChargeStationsWithConnectors(It.IsAny<int>())).Returns(chargeStationList);
+            _groupRepositoryMock.Setup(o => o.FindById(3)).Returns(Task.FromResult(_group));
+            _chargeStationRepositoryMock.Setup(o =>  o.GetAllChargeStationsWithConnectors(It.IsAny<int>()))
+                .Returns(_chargeStationList);
 
             _groupService = new GroupService(_groupRepositoryMock.Object, _mapper,_chargeStationRepositoryMock.Object);
 
+        }
+
+        private void SetMapper()
+        {
+            var mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new GroupsProfile());
+            });
+            _mapper = mappingConfig.CreateMapper();
         }
 
         [Fact]
@@ -163,9 +166,9 @@ namespace SmartCharge.Application
             GroupDto dto = await _groupService.GetGroup(3);
 
 
-            dto.Name.Should().Be(group.Name);
-            dto.Id.Should().Be(group.Id);
-            dto.CapacityInAmps.Should().Be(group.CapacityInAmps);
+            dto.Name.Should().Be(_group.Name);
+            dto.Id.Should().Be(_group.Id);
+            dto.CapacityInAmps.Should().Be(_group.CapacityInAmps);
         }
 
         [Fact]
@@ -183,7 +186,7 @@ namespace SmartCharge.Application
         [Fact]
         public async Task UpdateGroup_WhenInvalidCapacityInAmps_ThrowException()
         {
-            group.CapacityInAmps = 29;
+            _group.CapacityInAmps = 29;
            
 
             var exception = await Assert.ThrowsAsync<BusinessException>(() => _groupService.UpdateGroup(3, _groupForManipulationDto));
